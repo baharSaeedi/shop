@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const http = require("http");
 const path = require("path");
 const { allRoutes } = require("./router/router");
+const morgan = require("morgan");
 // const { appRoutes } = require("./router/router");
 
 module.exports = class Application {
@@ -22,8 +23,13 @@ module.exports = class Application {
     mongoose.connect("mongodb://localhost:27017/shopDB").then(() => {
       console.log("database connected");
     });
+
+    process.on("SIGINT",async ()=>{
+      await mongoose.connect.close()
+    })
   }
   configApplication() {
+    this.#app.use(morgan("dev"))
     this.#app.use(express.json());
     this.#app.use(express.urlencoded({ extended: true }));
     this.#app.use(express.static(path.join(__dirname, "..", "public")));
