@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const http = require("http");
 const path = require("path");
 const { allRoutes } = require("./router/router");
+const createError = require("http-errors")
 const morgan = require("morgan");
 // const { appRoutes } = require("./router/router");
 
@@ -41,13 +42,16 @@ module.exports = class Application {
     });
   }
   errorHandler() {
-    this.#app.use((req, res, nex) => {
-      return res.status(404).json({ success: false, message: "not found!" });
+    this.#app.use((req, res, next) => {
+      next(createError.NotFound("not found!"))
     });
     this.#app.use((error, req, res, next) => {
-      const status = error?.status || 500;
-      const message = error?.message || "internal server error";
-      return res.status(status).json({ success: false, message: message });
+      const serverErr = createError.InternalServerError()
+      const status = error?.status || serverErr.status;
+      const message = error?.message || serverErr.message;
+      return res.status(status).json({ success: false, errors:{
+        message: message
+      } });
     });
   }
   createRoutes() {
