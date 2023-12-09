@@ -19,7 +19,7 @@ module.exports = class Application {
     this.errorHandler();
   }
   configDatabase() {
-    mongoose.connect(this.#DB_URL).then(() => {
+    mongoose.connect("mongodb://localhost:27017/shopDB").then(() => {
       console.log("database connected");
     });
   }
